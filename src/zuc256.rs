@@ -9,18 +9,21 @@ pub static D_256: [u8; 16] = [
 ];
 
 /// mac 32bit
+#[allow(unused_variables, dead_code)]
 pub static MAC_256_32: [u8; 16] = [
     0b010_0010, 0b010_1111, 0b010_0101, 0b010_1010, 0b110_1101, 0b100_0000, 0b100_0000, 0b100_0000,
     0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b101_0010, 0b001_0000, 0b011_0000,
 ];
 
 /// mac 64bit
+#[allow(unused_variables, dead_code)]
 pub static MAC_256_64: [u8; 16] = [
     0b010_0011, 0b010_1111, 0b010_0100, 0b010_1010, 0b110_1101, 0b100_0000, 0b100_0000, 0b100_0000,
     0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b101_0010, 0b001_0000, 0b011_0000,
 ];
 
 /// mac 128bit
+#[allow(unused_variables, dead_code)]
 pub static MAC_256_128: [u8; 16] = [
     0b010_0011, 0b010_1111, 0b010_0101, 0b010_1010, 0b110_1101, 0b100_0000, 0b100_0000, 0b100_0000,
     0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b101_0010, 0b001_0000, 0b011_0000,
@@ -83,18 +86,6 @@ impl Zuc256 {
     ///  Generates the next 32-bit word in ZUC256 keystream
     pub fn generate(&mut self) -> u32 {
         self.core.generate()
-    }
-
-    ///  Generates MAC
-    #[allow(dead_code, unreachable_code, unused_variables)]
-    pub fn generate_mac(&mut self, mac_length: &MacLength) {
-        //  TODO impl mac after merge
-        let mac = match mac_length {
-            MacLength::Bit32 => MAC_256_32,
-            MacLength::Bit64 => MAC_256_64,
-            MacLength::Bit128 => MAC_256_128,
-        };
-        todo!();
     }
 }
 
