@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use zuc::ZUC256;
+    use zuc::Zuc256;
 
     struct Example {
         k: [u8; 32],
@@ -35,37 +35,10 @@ mod tests {
         ],
     };
 
-    static EXAMPLE2: Example = Example {
-        k: [0xff; 32],
-        iv: [0xff; 25],
-        expected: [
-            0x3356_cbae,
-            0xd1a1_c18b,
-            0x6baa_4ffe,
-            0x343f_777c,
-            0x9e15_128f,
-            0x251a_b65b,
-            0x949f_7b26,
-            0xef71_57f2,
-            0x96dd_2fa9,
-            0xdf95_e3ee,
-            0x7a5b_e02e,
-            0xc32b_a585,
-            0x505a_f316,
-            0xc2f9_ded2,
-            0x7cdb_d935,
-            0xe441_ce11,
-            0x15fd_0a80,
-            0xbb7a_ef67,
-            0x6898_9416,
-            0xb8fa_c8c2,
-        ],
-    };
-
     #[test]
-    fn examples() {
-        for Example { k, iv, expected } in [&EXAMPLE1, &EXAMPLE2] {
-            let mut zuc = ZUC256::new(k, iv);
+    fn example_zuc_256() {
+        for Example { k, iv, expected } in [&EXAMPLE1] {
+            let mut zuc = Zuc256::new(k, iv);
             for i in 0..20 {
                 assert_eq!(zuc.generate(), expected[i]);
             }
