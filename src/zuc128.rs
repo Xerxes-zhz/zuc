@@ -280,4 +280,18 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn cipher() {
+        use cipher::{Block, KeyIvInit, StreamBackend};
+
+        for Example { k, iv, expected } in [&EXAMPLE1, &EXAMPLE2, &EXAMPLE3] {
+            let mut zuc = <Zuc128Core as KeyIvInit>::new(k.into(), iv.into());
+            let mut block = Block::<Zuc128Core>::default();
+            for i in [1, 2] {
+                zuc.gen_ks_block(&mut block);
+                assert_eq!(u32::from_be_bytes(block.into()), expected[i][6]);
+            }
+        }
+    }
 }
