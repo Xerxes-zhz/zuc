@@ -2,8 +2,10 @@
 
 use crate::zuc::Zuc;
 
+use cipher::consts::{U1, U23, U32, U4};
+
 /// d constants
-pub static D_256: [u8; 16] = [
+static D: [u8; 16] = [
     0b_0010_0010, //
     0b_0010_1111, //
     0b_0010_0100, //
@@ -58,20 +60,24 @@ fn concat_bits(a: u8, b: u8, c: u8, d: u8) -> u32 {
     (u32::from(a) << 23) | (u32::from(b) << 16) | (u32::from(c) << 8) | u32::from(d)
 }
 
+/// ZUC256 stream cipher
+/// ([ZUC256-version1.1](http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020180416526664982687.pdf))
+pub type Zuc256 = cipher::StreamCipherCoreWrapper<Zuc256Core>;
+
 /// ZUC256 keystream generator
 /// ([ZUC256-version1.1](http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020180416526664982687.pdf))
 #[derive(Debug, Clone)]
-pub struct Zuc256 {
+pub struct Zuc256Core {
     /// zuc core
     core: Zuc,
 }
 
-impl Zuc256 {
+impl Zuc256Core {
     /// Creates a ZUC256 keystream generator
     #[must_use]
     pub fn new(k: &[u8; 32], iv: &[u8; 23]) -> Self {
         let mut zuc = Zuc::zeroed();
-        let d = D_256;
+        let d = &D;
 
         // extend from 184bit iv[0..=22] (u8*23) to iv[0..=24](8bit*17 + 6bit *8)
         let iv17: u8 = iv[17] >> 2;
@@ -109,7 +115,7 @@ impl Zuc256 {
     }
 }
 
-impl Iterator for Zuc256 {
+impl Iterator for Zuc256Core {
     type Item = u32;
 
     #[inline]
@@ -118,9 +124,54 @@ impl Iterator for Zuc256 {
     }
 }
 
+impl cipher::AlgorithmName for Zuc256Core {
+    fn write_alg_name(f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        write!(f, "Zuc256")
+    }
+}
+
+impl cipher::KeySizeUser for Zuc256Core {
+    type KeySize = U32;
+}
+
+impl cipher::IvSizeUser for Zuc256Core {
+    type IvSize = U23;
+}
+
+impl cipher::BlockSizeUser for Zuc256Core {
+    type BlockSize = U4;
+}
+
+impl cipher::ParBlocksSizeUser for Zuc256Core {
+    type ParBlocksSize = U1;
+}
+
+impl cipher::KeyIvInit for Zuc256Core {
+    fn new(key: &cipher::Key<Self>, iv: &cipher::Iv<Self>) -> Self {
+        Zuc256Core::new(key.as_ref(), iv.as_ref())
+    }
+}
+
+impl cipher::StreamBackend for Zuc256Core {
+    fn gen_ks_block(&mut self, block: &mut cipher::Block<Self>) {
+        let z = self.generate();
+        block.copy_from_slice(&z.to_be_bytes());
+    }
+}
+
+impl cipher::StreamCipherCore for Zuc256Core {
+    fn remaining_blocks(&self) -> Option<usize> {
+        None
+    }
+
+    fn process_with_backend(&mut self, f: impl cipher::StreamClosure<BlockSize = Self::BlockSize>) {
+        f.call(self);
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::Zuc256;
+    use crate::Zuc256Core;
 
     // examples from http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020180416526664982687.pdf
     struct Example {
@@ -186,7 +237,7 @@ mod tests {
     #[test]
     fn examples() {
         for Example { k, iv, expected } in [&EXAMPLE1, &EXAMPLE2] {
-            let mut zuc = Zuc256::new(k, iv);
+            let mut zuc = Zuc256Core::new(k, iv);
             for i in 0..expected.len() {
                 assert_eq!(zuc.generate(), expected[i]);
             }

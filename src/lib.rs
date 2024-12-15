@@ -31,6 +31,6 @@ mod eea3_128;
 pub use eea3_128::{eea3_128_encrypt, xor_encrypt};
 
 mod zuc256;
-pub use self::zuc256::Zuc256;
+pub use self::zuc256::{Zuc256, Zuc256Core};
 
 pub use cipher;
