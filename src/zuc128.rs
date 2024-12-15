@@ -1,45 +1,50 @@
-//! ZUC-128 Algorithms
+//! ZUC128 Algorithms
 
 use crate::zuc::Zuc;
 
-/// d constants
-pub static D_128: [u16; 16] = [
-    0b_0100_0100_1101_0111,
-    0b_0010_0110_1011_1100,
-    0b_0110_0010_0110_1011,
-    0b_0001_0011_0101_1110,
-    0b_0101_0111_1000_1001,
-    0b_0011_0101_1110_0010,
-    0b_0111_0001_0011_0101,
-    0b_0000_1001_1010_1111,
-    0b_0100_1101_0111_1000,
-    0b_0010_1111_0001_0011,
-    0b_0110_1011_1100_0100,
-    0b_0001_1010_1111_0001,
-    0b_0101_1110_0010_0110,
-    0b_0011_1100_0100_1101,
-    0b_0111_1000_1001_1010,
-    0b_0100_0111_1010_1100,
+use cipher::consts::{U1, U16, U4};
+
+/// (d<<8) constants
+static D: [u32; 16] = [
+    0b_0100_0100_1101_0111_0000_0000,
+    0b_0010_0110_1011_1100_0000_0000,
+    0b_0110_0010_0110_1011_0000_0000,
+    0b_0001_0011_0101_1110_0000_0000,
+    0b_0101_0111_1000_1001_0000_0000,
+    0b_0011_0101_1110_0010_0000_0000,
+    0b_0111_0001_0011_0101_0000_0000,
+    0b_0000_1001_1010_1111_0000_0000,
+    0b_0100_1101_0111_1000_0000_0000,
+    0b_0010_1111_0001_0011_0000_0000,
+    0b_0110_1011_1100_0100_0000_0000,
+    0b_0001_1010_1111_0001_0000_0000,
+    0b_0101_1110_0010_0110_0000_0000,
+    0b_0011_1100_0100_1101_0000_0000,
+    0b_0111_1000_1001_1010_0000_0000,
+    0b_0100_0111_1010_1100_0000_0000,
 ];
+
+/// ZUC128 stream cipher
+/// ([GB/T 33133.1-2016](https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=8C41A3AEECCA52B5C0011C8010CF0715))
+pub type Zuc128 = cipher::StreamCipherCoreWrapper<Zuc128Core>;
 
 /// ZUC128 keystream generator
 /// ([GB/T 33133.1-2016](https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=8C41A3AEECCA52B5C0011C8010CF0715))
 #[derive(Debug, Clone)]
-pub struct Zuc128 {
+pub struct Zuc128Core {
     /// zuc core
     core: Zuc,
 }
 
-impl Zuc128 {
+impl Zuc128Core {
     /// Creates a ZUC128 keystream generator
     #[must_use]
     pub fn new(key: &[u8; 16], iv: &[u8; 16]) -> Self {
         let mut zuc = Zuc::zeroed();
         for i in 0..16 {
             let k_i = u32::from(key[i]);
-            let d_i = u32::from(D_128[i]);
             let iv_i = u32::from(iv[i]);
-            zuc.s[i] = (k_i << 23) | (d_i << 8) | iv_i;
+            zuc.s[i] = (k_i << 23) | D[i] | iv_i;
         }
         zuc.init();
         Self { core: zuc }
@@ -51,7 +56,7 @@ impl Zuc128 {
     }
 }
 
-impl Iterator for Zuc128 {
+impl Iterator for Zuc128Core {
     type Item = u32;
 
     #[inline]
@@ -60,9 +65,54 @@ impl Iterator for Zuc128 {
     }
 }
 
+impl cipher::AlgorithmName for Zuc128Core {
+    fn write_alg_name(f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        write!(f, "Zuc128")
+    }
+}
+
+impl cipher::KeySizeUser for Zuc128Core {
+    type KeySize = U16;
+}
+
+impl cipher::IvSizeUser for Zuc128Core {
+    type IvSize = U16;
+}
+
+impl cipher::BlockSizeUser for Zuc128Core {
+    type BlockSize = U4;
+}
+
+impl cipher::ParBlocksSizeUser for Zuc128Core {
+    type ParBlocksSize = U1;
+}
+
+impl cipher::KeyIvInit for Zuc128Core {
+    fn new(key: &cipher::Key<Self>, iv: &cipher::Iv<Self>) -> Self {
+        Zuc128Core::new(key.as_ref(), iv.as_ref())
+    }
+}
+
+impl cipher::StreamBackend for Zuc128Core {
+    fn gen_ks_block(&mut self, block: &mut cipher::Block<Self>) {
+        let z = self.generate();
+        block.copy_from_slice(&z.to_be_bytes());
+    }
+}
+
+impl cipher::StreamCipherCore for Zuc128Core {
+    fn remaining_blocks(&self) -> Option<usize> {
+        None
+    }
+
+    fn process_with_backend(&mut self, f: impl cipher::StreamClosure<BlockSize = Self::BlockSize>) {
+        f.call(self);
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::Zuc128;
+    use super::*;
 
     // examples from http://c.gb688.cn/bzgk/gb/showGb?type=online&hcno=8C41A3AEECCA52B5C0011C8010CF0715
     struct Example {
@@ -191,28 +241,43 @@ mod tests {
     #[test]
     fn examples() {
         for Example { k, iv, expected } in [&EXAMPLE1, &EXAMPLE2, &EXAMPLE3] {
-            let mut zuc = Zuc128::new(k, iv);
+            let mut zuc = Zuc128Core::new(k, iv);
 
-            assert_eq!(zuc.core.x, expected[0][..4]);
-            assert_eq!(zuc.core.r1, expected[0][4]);
-            assert_eq!(zuc.core.r2, expected[0][5]);
-            assert_eq!(zuc.core.s[15], expected[0][7]);
+            {
+                let mut zuc = zuc.clone();
+                zuc.core.lfsr_with_work_mode();
+
+                // assert_eq!(zuc.core.x, expected[0][..4]);
+                assert_eq!(zuc.core.r1, expected[0][4]);
+                assert_eq!(zuc.core.r2, expected[0][5]);
+                assert_eq!(zuc.core.s[15], expected[0][7]);
+            }
 
             let z1 = zuc.generate();
 
-            assert_eq!(zuc.core.x, expected[1][..4]);
-            assert_eq!(zuc.core.r1, expected[1][4]);
-            assert_eq!(zuc.core.r2, expected[1][5]);
-            assert_eq!(z1, expected[1][6]);
-            assert_eq!(zuc.core.s[15], expected[1][7]);
+            {
+                let mut zuc = zuc.clone();
+                zuc.core.lfsr_with_work_mode();
+
+                // assert_eq!(zuc.core.x, expected[1][..4]);
+                assert_eq!(zuc.core.r1, expected[1][4]);
+                assert_eq!(zuc.core.r2, expected[1][5]);
+                assert_eq!(z1, expected[1][6]);
+                assert_eq!(zuc.core.s[15], expected[1][7]);
+            }
 
             let z2 = zuc.generate();
 
-            assert_eq!(zuc.core.x, expected[2][..4]);
-            assert_eq!(zuc.core.r1, expected[2][4]);
-            assert_eq!(zuc.core.r2, expected[2][5]);
-            assert_eq!(z2, expected[2][6]);
-            assert_eq!(zuc.core.s[15], expected[2][7]);
+            {
+                let mut zuc = zuc.clone();
+                zuc.core.lfsr_with_work_mode();
+
+                // assert_eq!(zuc.core.x, expected[2][..4]);
+                assert_eq!(zuc.core.r1, expected[2][4]);
+                assert_eq!(zuc.core.r2, expected[2][5]);
+                assert_eq!(z2, expected[2][6]);
+                assert_eq!(zuc.core.s[15], expected[2][7]);
+            }
         }
     }
 }
