@@ -18,3 +18,7 @@ Documentation: <https://docs.rs/zuc>
 - **ZUC 256**: [ZUC256-version1.1](http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020180416526664982687.pdf)
 - **ZUC 256 Addendum**: [ZUC256-addendum](http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020220926381349696866.pdf) (unimplemented)
 - **ZUC 256 New Initialization**: [ZUC256-new-initialization](http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020230201389233346416.pdf) (unimplemented)
+
+## Contributing
+
++ [Development Guide](./CONTRIBUTING.md)
