@@ -9,11 +9,11 @@ fmt *ARGS:
 lint *ARGS:
     cargo clippy --all-features --tests --benches {{ARGS}}
 
-test:
-    cargo test --all-features
+test *ARGS:
+    cargo test --all-features {{ARGS}}
 
-doc:
-    RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --open --no-deps --all-features
+doc *ARGS:
+    RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --open --no-deps --all-features {{ARGS}}
 
 ci:
     just fmt --check
