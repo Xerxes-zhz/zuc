@@ -9,13 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]: https://github.com/Nugine/zuc/compare/v0.1.0...HEAD
 
 Features
-+ Add ZUC256 keystream generator (#3)
-+ Add 128-EEA3 confidentiality algorithm (#4)
-+ Add RustCrypto cipher traits implementation (#5)
-+ Add ZUC128 benchmark (#7)
++ Add ZUC256 keystream generator ([#3](https://github.com/Nugine/zuc/pull/3))
++ Add 128-EEA3 confidentiality algorithm ([#4](https://github.com/Nugine/zuc/pull/4))
++ Add RustCrypto cipher traits implementation ([#5](https://github.com/Nugine/zuc/pull/5))
++ Add ZUC128 benchmark ([#7](https://github.com/Nugine/zuc/pull/7))
 
 Performance
-+ Improve ZUC128 performance (#5)
++ Improve ZUC128 performance ([#5](https://github.com/Nugine/zuc/pull/5))
 
 ## [0.1.0] - 2024-11-22
 
