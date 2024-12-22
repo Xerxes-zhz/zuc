@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/Nugine/zuc/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Nugine/zuc/compare/v0.2.0...HEAD
+
+## [0.2.0] - 2024-12-22
+
+[0.2.0]: https://github.com/Nugine/zuc/compare/v0.1.0...v0.2.0
 
 Features
 + Add ZUC256 keystream generator ([#3](https://github.com/Nugine/zuc/pull/3))
