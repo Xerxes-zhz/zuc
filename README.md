@@ -12,6 +12,13 @@
 
 Documentation: <https://docs.rs/zuc>
 
+## Goals
+
++ **Correct**: Our implementation exactly matches the specification.
++ **Fast**: We are happy to make the performance as high as possible.
++ **Safe**: No `unsafe` code by default, unless you enable corresponding features.
++ **RustCrypto compatible**: You can use it with RustCrypto trait definitions.
+
 ## References
 - **ZUC 128**: [GB/T 33133.1-2016](https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=8C41A3AEECCA52B5C0011C8010CF0715)
 - **128-EEA3**: [GB/T 33133.2-2021](https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=5D3CBA3ADEC7989344BD1E63006EF2B3), [EEA3-EIA3-specification](https://www.gsma.com/solutions-and-impact/technologies/security/wp-content/uploads/2019/05/EEA3_EIA3_specification_v1_8.pdf)
