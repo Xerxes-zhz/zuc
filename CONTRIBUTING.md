@@ -42,8 +42,12 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0
 
 ### Pull Request
 
-Before creating or updating a pull request, please make sure to run the following commands and resolve any warnings or errors:
+Before creating or updating a pull request, please make sure to run the following commands:
 
 ```bash
 just dev
 ```
+
+It's recommended to resolve any warnings or errors before submitting.
+
+Note that some lints may be too restrict. You can allow some of them if you think they are not helpful to the code quality.
