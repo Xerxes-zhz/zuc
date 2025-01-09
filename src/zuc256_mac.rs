@@ -288,7 +288,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::zuc256_generate_mac;
+    use super::*;
 
     // examples from http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020180416526664982687.pdf
     struct ExampleMAC {

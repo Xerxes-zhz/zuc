@@ -144,7 +144,7 @@ impl cipher::StreamCipherCore for Zuc256Core {
 
 #[cfg(test)]
 mod tests {
-    use crate::Zuc256Core;
+    use super::*;
 
     // examples from http://www.is.cas.cn/ztzl2016/zouchongzhi/201801/W020180416526664982687.pdf
     struct Example {

@@ -24,9 +24,5 @@ criterion = "0.5.1"
 rand = "0.8.5"
 
 [[bench]]
-name = "zuc128_benchmark"
-harness = false
-
-[[bench]]
-name = "eia3"
+name = "zuc"
 harness = false
