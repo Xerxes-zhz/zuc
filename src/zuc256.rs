@@ -24,37 +24,6 @@ static D: [u8; 16] = [
     0b_0011_0000, //
 ];
 
-// /// mac 32bit
-// #[allow(unused_variables, dead_code)]
-// pub static MAC_256_32: [u8; 16] = [
-//     0b010_0010, 0b010_1111, 0b010_0101, 0b010_1010, 0b110_1101, 0b100_0000, 0b100_0000, 0b100_0000,
-//     0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b101_0010, 0b001_0000, 0b011_0000,
-// ];
-
-// /// mac 64bit
-// #[allow(unused_variables, dead_code)]
-// pub static MAC_256_64: [u8; 16] = [
-//     0b010_0011, 0b010_1111, 0b010_0100, 0b010_1010, 0b110_1101, 0b100_0000, 0b100_0000, 0b100_0000,
-//     0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b101_0010, 0b001_0000, 0b011_0000,
-// ];
-
-// /// mac 128bit
-// #[allow(unused_variables, dead_code)]
-// pub static MAC_256_128: [u8; 16] = [
-//     0b010_0011, 0b010_1111, 0b010_0101, 0b010_1010, 0b110_1101, 0b100_0000, 0b100_0000, 0b100_0000,
-//     0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b100_0000, 0b101_0010, 0b001_0000, 0b011_0000,
-// ];
-
-// /// mac length
-// pub enum MacLength {
-//     /// 32 bit
-//     Bit32,
-//     /// 64 bit
-//     Bit64,
-//     /// 128 bit
-//     Bit128,
-// }
-
 /// concat u8 bits to 31bit u32
 fn concat_bits(a: u8, b: u8, c: u8, d: u8) -> u32 {
     (u32::from(a) << 23) | (u32::from(b) << 16) | (u32::from(c) << 8) | u32::from(d)
@@ -76,9 +45,12 @@ impl Zuc256Core {
     /// Creates a ZUC256 keystream generator
     #[must_use]
     pub fn new(k: &[u8; 32], iv: &[u8; 23]) -> Self {
-        let mut zuc = Zuc::zeroed();
-        let d = &D;
+        Zuc256Core::new_with_d(k, iv, &D)
+    }
 
+    /// Creates a [`Zuc256Core`] with specific d constants
+    pub(crate) fn new_with_d(k: &[u8; 32], iv: &[u8; 23], d: &[u8; 16]) -> Self {
+        let mut zuc = Zuc::zeroed();
         // extend from 184bit iv[0..=22] (u8*23) to iv[0..=24](8bit*17 + 6bit *8)
         let iv17: u8 = iv[17] >> 2;
         let iv18: u8 = ((iv[17] & 0x3) << 4) | (iv[18] >> 4);
@@ -110,6 +82,7 @@ impl Zuc256Core {
     }
 
     ///  Generates the next 32-bit word in ZUC256 keystream
+    #[must_use]
     pub fn generate(&mut self) -> u32 {
         self.core.generate()
     }
