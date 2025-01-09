@@ -6,7 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/Nugine/zuc/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Nugine/zuc/compare/v0.3.0...HEAD
+
+## [0.3.0] - 2024-01-09
+
+[0.3.0]: https://github.com/Nugine/zuc/compare/v0.2.0...v0.3.0
+
+Features
++ Add 128-EIA3 integrity algorithm ([#8](https://github.com/Nugine/zuc/pull/8))
++ Add ZUC256 MAC generation algorithm ([#9](https://github.com/Nugine/zuc/pull/9))
 
 ## [0.2.0] - 2024-12-22
 
